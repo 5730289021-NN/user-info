@@ -1,12 +1,42 @@
+
 version: '3.3'
 
 services:
+    user_account_service:
+        build: ./user_account_service
+        container_name: user_account_service
+        ports:
+        - "80:8123"
+        links:
+        - mysql:mysql
+        - asset_service:asset_service
+        depends_on:
+        - mysql
+        environment:
+        - DATABASE_HOST=mysql
+        - ASSET_SERVICE=asset_service
+    mysql:
+        build: user_data
+        ports:
+        - "3306:3306"
+    asset_service:
+        build: asset_service
+        container_name: asset_service
+        volumes:
+            - .:/myapp
+        ports:
+            - "3000:3000"
+        links:
+           - asset_mapping:asset_mapping
+        environment:
+            - DATABASE_HOST=asset_mapping
     asset_mapping:
         build: asset_mapping
+        container_name: asset_mapping
         ports:
-            - "28017:28017"
-
+            - "27017:27017"
     asset_mapping_seed:
         build: asset_mapping_seed
+        container_name: asset_mapping_seed
         links:
             - asset_mapping
